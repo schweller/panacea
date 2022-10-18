@@ -1,9 +1,8 @@
-import type { NextPage } from 'next'
+import type { NextPage, GetStaticProps, InferGetStaticPropsType } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
 
 import { createStitches } from "@stitches/react"
-import { violet, blackA, mauve, green, sand, amber, amberDark, sandDark } from "@radix-ui/colors"
+import { violet, mauve, sand, amber, amberDark, sandDark } from "@radix-ui/colors"
 import { ExternalLinkIcon, CheckIcon, ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons"
 import * as SelectPrimitive from '@radix-ui/react-select';
 
@@ -17,16 +16,11 @@ import {
   Row,
   SortingState,
   useReactTable,
-  FilterFn,
 } from '@tanstack/react-table'
 import { useVirtual } from 'react-virtual'
-import { SyntheticEvent, useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 
-import games from '../public/games.json'
-import events from '../public/events.json'
-import languages from '../public/languages.json'
-
-import styles from '../styles/Home.module.css'
+import { loadGames, loadEvents, loadLanguages, Game, Event as EventType, Language } from "../lib/load-data"
 
 const ldRootUrl = "https://ldjam.com"
 
@@ -269,7 +263,7 @@ const StyledLabel = styled(SelectPrimitive.Label, {
   color: mauve.mauve11,
 });
 
-function Content({ children, ...props }) {
+function Content({ children, ...props}: {children: React.ReactNode})  {
   return (
     <SelectPrimitive.Portal>
       <StyledContent {...props}>{children}</StyledContent>
@@ -313,7 +307,12 @@ const SelectLabel = StyledLabel;
 const SelectScrollUpButton = StyledScrollUpButton;
 const SelectScrollDownButton = StyledScrollDownButton;
 
-const SelectDemo = ({data, handler, value, placeholder}) => (
+const SelectDemo = ({data, handler, value, placeholder}: {
+  data: any,
+  handler: any,
+  value: any,
+  placeholder: any
+}) => (
   <Box>
       <Select onValueChange={handler} value={value}>
       <SelectTrigger aria-label="Food">
@@ -324,7 +323,7 @@ const SelectDemo = ({data, handler, value, placeholder}) => (
       </SelectTrigger>
       <SelectContent>
           <SelectScrollUpButton>
-          <ChevronUpIcon />
+            <ChevronUpIcon />
           </SelectScrollUpButton>
           <SelectViewport>
           <SelectGroup>
@@ -336,7 +335,7 @@ const SelectDemo = ({data, handler, value, placeholder}) => (
               </SelectItem>                
               {data.map((lang: string) => {
                   return (
-                  <SelectItem value={lang}>
+                  <SelectItem key={lang} value={lang}>
                       <SelectItemText>{lang}</SelectItemText>
                       <SelectItemIndicator>
                           <CheckIcon />
@@ -354,19 +353,28 @@ const SelectDemo = ({data, handler, value, placeholder}) => (
   </Box>
 );
 
-export async function getStaticProps(context) {
+type HomeProps = {
+  games: Game[],
+  events: EventType[],
+  languages: Language[]
+}
+
+export const getStaticProps: GetStaticProps<HomeProps> = async (context) => {
+  const games = await loadGames()
+  const events = await loadEvents()
+  const languages = await loadLanguages()
+
   return {
     props: {
       games,
       events,
       languages
-    }, // will be passed to the page component as props
+    }
   }
 }
 
-const Home: NextPage = (props) => {
+const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStaticProps>) => {
 
-  const { games, events, languages } = props
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [languageFilter, setLanguageFilter] = useState('')
   const [eventFilter, setEventFilter] = useState('')
@@ -398,7 +406,7 @@ const Home: NextPage = (props) => {
                       null :
                       <Flex css={{flexWrap: 'wrap', gap: '10px'}}>
                           {Object.keys(list).map((key, i) => (
-                              <Tag>{key}</Tag>
+                              <Tag key={`${key}-${i}`}>{key}</Tag>
                           ))}
                       </Flex>
               },
@@ -406,9 +414,9 @@ const Home: NextPage = (props) => {
               header: 'Made with',
               enableColumnFilter: true,
               filterFn: (row, columnId, value: string) => {
-                  const kv = row.getValue(columnId)
+                  const kv = row.getValue(columnId) as any
                   if (kv) {
-                      if (kv[value]) {
+                      if (kv[value] as any  ) {
                           return true
                       } else {
                           return false
@@ -501,12 +509,12 @@ const Home: NextPage = (props) => {
   const madeWithColumn = table.getColumn("Made with")
   const eventColumn = table.getColumn("Event")
 
-  const handleSelectChange = (value) => {
+  const handleSelectChange = (value: string) => {
       madeWithColumn.setFilterValue(value)
       setLanguageFilter(value)
   };
 
-  const handleEventSelectChange = (value) => {
+  const handleEventSelectChange = (value: string) => {
       eventColumn.setFilterValue(value)
       setEventFilter(value)
   }
@@ -524,98 +532,105 @@ const Home: NextPage = (props) => {
           : 0
 
   return (
-      <Box css={{ width: '100%', margin: '0 15px'}}>
-          <Box css={{ width: '100%', maxWidth: 300, margin: '0 0 80px' }}>
-              <Text css={{fontSize: 72, fontWeight: 900, color: amber.amber11 }}>Panacea</Text>
-              <Text css={{color: sand.sand10 }}>A list of Ludum Dare entries that are open-source and their links.</Text>
-          </Box>
-          <Box css={{margin: '15px 0'}}>
-              <Flex css={{alignItems: 'center', justifyContent: 'end'}}>
-                  <Box css={{marginRight: 15}}>
-                      <SelectDemo data={filterValues} value={languageFilter} handler={handleSelectChange} placeholder="Pick a programming language" />
-                  </Box>
-                  <Box css={{marginRight: 15}}>
-                      <SelectDemo data={eventFilterValues} value={eventFilter} handler={handleEventSelectChange} placeholder="Pick an event" />
-                  </Box>
-                  <Box>
-                      <StyledButton onClick={handleResetFilters}>
-                          Reset filters
-                      </StyledButton>
-                  </Box>
-              </Flex>
-          </Box>
-          <Box css={{overflow: 'auto', height: 300}} ref={tableContainerRef}>
-              <Table style={{borderSpacing: 0}}>
-                  <thead style={{position: 'sticky', top: 0}}>
-                      {table.getHeaderGroups().map(headerGroup => (
-                      <tr key={headerGroup.id}>
-                          {headerGroup.headers.map(header => {
-                          return (
-                              <TableHeading
-                              key={header.id}
-                              colSpan={header.colSpan}
-                              style={{ width: header.getSize() }}
-                              >
-                              {header.isPlaceholder ? null : (
-                                  <div
-                                  {...{
-                                      className: header.column.getCanSort()
-                                      ? 'cursor-pointer select-none'
-                                      : '',
-                                      onClick: header.column.getToggleSortingHandler(),
-                                  }}
-                                  >
-                                  {flexRender(
-                                      header.column.columnDef.header,
-                                      header.getContext()
-                                  )}
-                                  {{
-                                      asc: ' 🔼',
-                                      desc: ' 🔽',
-                                  }[header.column.getIsSorted() as string] ?? null}
-                                  </div>
-                              )}
-                              </TableHeading>
-                          )
-                          })}
-                      </tr>
-                      ))}
-                  </thead>
-                  <tbody>
-                  {paddingTop > 0 && (
-                      <tr>
-                          <td style={{ height: `${paddingTop}px` }} />
-                      </tr>
-                  )}                  
-                  {virtualRows.map(virtualRow => {
-                      const row = rows[virtualRow.index] as Row<Game>
-                      return (
-                          <TableRow key={row.id}>
-                          {row.getVisibleCells().map(cell => {
-                              return (
-                              <TableCell key={cell.id}>
-                                  {flexRender(
-                                  cell.column.columnDef.cell,
-                                  cell.getContext()
-                                  )}
-                              </TableCell>
-                              )
-                          })}
-                          </TableRow>
-                      )
-                      })}
-                      {paddingBottom > 0 && (
-                      <tr>
-                          <td style={{ height: `${paddingBottom}px` }} />
-                      </tr>
-                      )}                    
-                  </tbody>
-              </Table>
-          </Box>
-          <Box css={{fontSize: 12, margin: "15px 0", fontWeight: 700}}>
-              Showing {table.getRowModel().rows.length} games
-          </Box>
-      </Box>
+      <>
+        <Head>
+          <title>Panacea - a feast!</title>
+          <meta name="description" content="Panacea is a listing of all open source games published at Ludum Dare" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <Box css={{ maxWith: 1024, margin: '0 15px'}}>
+            <Box css={{ width: '100%', maxWidth: 300, margin: '0 0 80px' }}>
+                <Text css={{fontSize: 72, fontWeight: 900, color: amber.amber11 }}>Panacea</Text>
+                <Text css={{color: sand.sand10 }}>A list of Ludum Dare entries that are open-source and their links.</Text>
+            </Box>
+            <Box css={{margin: '15px 0'}}>
+                <Flex css={{alignItems: 'center', justifyContent: 'end'}}>
+                    <Box css={{marginRight: 15}}>
+                        <SelectDemo data={filterValues} value={languageFilter} handler={handleSelectChange} placeholder="Pick a programming language" />
+                    </Box>
+                    <Box css={{marginRight: 15}}>
+                        <SelectDemo data={eventFilterValues} value={eventFilter} handler={handleEventSelectChange} placeholder="Pick an event" />
+                    </Box>
+                    <Box>
+                        <StyledButton onClick={handleResetFilters}>
+                            Reset filters
+                        </StyledButton>
+                    </Box>
+                </Flex>
+            </Box>
+            <Box css={{overflow: 'auto', height: 300}} ref={tableContainerRef}>
+                <Table style={{borderSpacing: 0}}>
+                    <thead style={{position: 'sticky', top: 0}}>
+                        {table.getHeaderGroups().map(headerGroup => (
+                        <tr key={headerGroup.id}>
+                            {headerGroup.headers.map(header => {
+                            return (
+                                <TableHeading
+                                key={header.id}
+                                colSpan={header.colSpan}
+                                style={{ width: header.getSize() }}
+                                >
+                                {header.isPlaceholder ? null : (
+                                    <div
+                                    {...{
+                                        className: header.column.getCanSort()
+                                        ? 'cursor-pointer select-none'
+                                        : '',
+                                        onClick: header.column.getToggleSortingHandler(),
+                                    }}
+                                    >
+                                    {flexRender(
+                                        header.column.columnDef.header,
+                                        header.getContext()
+                                    )}
+                                    {{
+                                        asc: ' 🔼',
+                                        desc: ' 🔽',
+                                    }[header.column.getIsSorted() as string] ?? null}
+                                    </div>
+                                )}
+                                </TableHeading>
+                            )
+                            })}
+                        </tr>
+                        ))}
+                    </thead>
+                    <tbody>
+                    {paddingTop > 0 && (
+                        <tr>
+                            <td style={{ height: `${paddingTop}px` }} />
+                        </tr>
+                    )}                  
+                    {virtualRows.map(virtualRow => {
+                        const row = rows[virtualRow.index] as Row<Game>
+                        return (
+                            <TableRow key={row.id}>
+                            {row.getVisibleCells().map(cell => {
+                                return (
+                                <TableCell key={cell.id}>
+                                    {flexRender(
+                                    cell.column.columnDef.cell,
+                                    cell.getContext()
+                                    )}
+                                </TableCell>
+                                )
+                            })}
+                            </TableRow>
+                        )
+                        })}
+                        {paddingBottom > 0 && (
+                        <tr>
+                            <td style={{ height: `${paddingBottom}px` }} />
+                        </tr>
+                        )}                    
+                    </tbody>
+                </Table>
+            </Box>
+            <Box css={{fontSize: 12, margin: "15px 0", fontWeight: 700}}>
+                Showing {table.getRowModel().rows.length} games
+            </Box>
+        </Box>
+      </>
   );
 
 }
