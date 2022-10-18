@@ -346,6 +346,9 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
 
   return (
       <>
+        <Head>
+          <title>Panacea - a feast!</title>
+        </Head>
         <Box css={{ maxWidth: 1024, margin: '0 15px'}}>
             <Box css={{ width: '100%', maxWidth: 300, margin: '80px 0 0' }}>
                 <Text css={{fontSize: 72, fontWeight: 900 }}>Panacea</Text>
