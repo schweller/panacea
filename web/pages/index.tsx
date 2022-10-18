@@ -21,19 +21,9 @@ import { useVirtual } from 'react-virtual'
 import { useMemo, useRef, useState } from "react"
 
 import { loadGames, loadEvents, loadLanguages, Game, Event as EventType, Language } from "../lib/load-data"
+import { styled, createTheme } from "../stitches.config"
 
 const ldRootUrl = "https://ldjam.com"
-
-const { styled, createTheme } = createStitches({
-  theme: {
-    colors: {
-      ...amber,
-      ...sand,
-      ...amberDark,
-      ...sandDark,
-    },
-  },
-});
 
 const darkTheme = createTheme({
   colors: {
@@ -315,10 +305,10 @@ const SelectDemo = ({data, handler, value, placeholder}: {
 }) => (
   <Box>
       <Select onValueChange={handler} value={value}>
-      <SelectTrigger aria-label="Food">
+      <SelectTrigger aria-label={placeholder}>
           <SelectValue placeholder={placeholder} />
           <SelectIcon>
-          <ChevronDownIcon />
+            <ChevronDownIcon />
           </SelectIcon>
       </SelectTrigger>
       <SelectContent>
@@ -477,7 +467,7 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
   // ludum dare event filters
   let eventFilterValues:string[] = []
   events.forEach((obj) => {
-      eventFilterValues = [obj.Name, ...eventFilterValues]
+      if (obj.Name !== 'Ludum Dare Test') eventFilterValues = [obj.Name, ...eventFilterValues]
   })
 
   // Sort alphabetically
@@ -538,7 +528,7 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
           <meta name="description" content="Panacea is a listing of all open source games published at Ludum Dare" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <Box css={{ maxWith: 1024, margin: '0 15px'}}>
+        <Box css={{ maxWidth: 1024, margin: '0 15px'}}>
             <Box css={{ width: '100%', maxWidth: 300, margin: '0 0 80px' }}>
                 <Text css={{fontSize: 72, fontWeight: 900, color: amber.amber11 }}>Panacea</Text>
                 <Text css={{color: sand.sand10 }}>A list of Ludum Dare entries that are open-source and their links.</Text>
