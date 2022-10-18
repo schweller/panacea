@@ -1,16 +1,12 @@
 import type { NextPage, GetStaticProps, InferGetStaticPropsType } from 'next'
 import Head from 'next/head'
-
-import { createStitches } from "@stitches/react"
-import { violet, mauve, sand, amber, amberDark, sandDark } from "@radix-ui/colors"
-import { ExternalLinkIcon, CheckIcon, ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons"
-import * as SelectPrimitive from '@radix-ui/react-select';
-
+import { violet, mauve, sand, amber, amberDark, sandDark, plum, plumDark, mauveDark } from "@radix-ui/colors"
 import {
   ColumnDef,
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
   getSortedRowModel,
   Row,
@@ -20,69 +16,16 @@ import {
 import { useVirtual } from 'react-virtual'
 import { useMemo, useRef, useState } from "react"
 
+import SelectDemo from "../components/select"
+import { Box, Flex, Text, StyledButton } from "../components/common"
 import { loadGames, loadEvents, loadLanguages, Game, Event as EventType, Language } from "../lib/load-data"
-import { styled, createTheme } from "../stitches.config"
+import { styled } from "../stitches.config"
 
 const ldRootUrl = "https://ldjam.com"
 
-const darkTheme = createTheme({
-  colors: {
-    ...amberDark,
-    ...sandDark,
-  },
-});
-
-const Box = styled('div', {});
-const Flex = styled('div', { display: 'flex' });
-const Text = styled('div', {
-    color: '$amber11',
-    fontSize: 15,
-});
-
-const List = styled('ul', {
-    listStyle: "none"
-})
-const ListItem = styled('li', {
-    margin: '15px 0',
-    variants: {
-        variant: {
-            default: {},
-            card: {
-                border: '1px solid',
-                borderColor: "$amber7",
-                borderRadius: 10,
-            }
-        }
-    },
-
-    defaultVariants: {
-        variant: 'default'
-    }
-})
-
-const ListItemHeading = styled('div', {
-    padding: 15,
-    backgroundColor: '$amber6'
-})
-
-const Heading = styled('h2', {
-    color: '$amber11',
-    margin: "0 0 5px 0"
-})
-
-const Subheading = styled('h3', {
-    color: '$amber11',
-    fontSize: 16,
-    fontWeight: 300,
-})
-
-const Link = styled('a', {
-    color: '$amber11',
-})
-
 const PillLink = styled('a', {
     display: 'flex',
-    color: '$amber11',
+    color: '$mauve12',
     width: 88,
     height: 30,
     fontWeight: 700,
@@ -91,11 +34,11 @@ const PillLink = styled('a', {
     justifyContent: 'space-evenly',
     background: '$amber1',
     border: '1px solid black',
-    borderColor: '$amber7',
+    borderColor: '$plum10',
     borderRadius: 20,
     textDecoration: 'none',
     '&:hover': {
-        background: '$amber5'
+        background: '$plum4'
     }
 })
 
@@ -119,11 +62,16 @@ const Tag = styled('div', {
           backgroundColor: '$amber4',
           borderColor: '$amber10',
         },
+        plum: {
+          color: '$mauve12',
+          backgroundColor: '$plum4',
+          borderColor: '$plum10',
+        }
       },
     },
   
     defaultVariants: {
-      variant: 'violet',
+      variant: 'plum',
     },
 });
 
@@ -136,9 +84,9 @@ const Table = styled('table', {
 const TableHeading = styled('th', {
     width: 60,
     padding: 10,
-    backgroundColor: '$amber6',
+    backgroundColor: '$plum7',
     textAlign: 'left',
-    color: '$amber11',
+    color: '$plum12',
     '&:first-child': {
         borderTopLeftRadius: 10,
     },
@@ -149,9 +97,9 @@ const TableHeading = styled('th', {
 
 const TableRow = styled('tr', {
     border: '1px solid',
-    borderColor: '$amber10',
+    borderColor: '$plum10',
     '&:hover': {
-        background: '$amber3'
+        background: '$plum3'
     },
     '&:last-child > td': {
         borderBottom: 'none',
@@ -161,187 +109,8 @@ const TableRow = styled('tr', {
 const TableCell = styled('td', {
     padding: 10,
     borderBottom: '1px solid',
-    borderBottomColor: '$amber10'
+    borderBottomColor: '$plum10'
 })
-
-const StyledButton = styled('button', {
-  all: 'unset',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: 20,
-  padding: '0 15px',
-  fontSize: 13,
-  lineHeight: 1,
-  height: 35,
-  gap: 5,
-  backgroundColor: '$amber1',
-  color: '$amber11',
-  borderWidth: 1,
-  borderStyle: 'solid',
-  borderColor: '$amber7',
-  '&:hover': { backgroundColor: '$amber5' },
-  '&:focus': { boxShadow: `0 0 0 2px black` },
-  '&[data-placeholder]': { color: '$amber11' },
-})
-
-const StyledTrigger = styled(SelectPrimitive.SelectTrigger, {
-  all: 'unset',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: 20,
-  padding: '0 15px',
-  fontSize: 13,
-  lineHeight: 1,
-  height: 35,
-  gap: 5,
-  backgroundColor: '$amber1',
-  color: '$amber11',
-  borderWidth: 1,
-  borderStyle: 'solid',
-  borderColor: '$amber7',
-  '&:hover': { backgroundColor: '$amber5' },
-  '&:focus': { boxShadow: `0 0 0 2px black` },
-  '&[data-placeholder]': { color: '$amber11' },
-});
-
-const StyledIcon = styled(SelectPrimitive.SelectIcon, {
-  color: '$amber11',
-});
-
-const StyledContent = styled(SelectPrimitive.Content, {
-  overflow: 'hidden',
-  backgroundColor: 'white',
-  borderRadius: 6,
-  boxShadow:
-    '0px 10px 38px -10px rgba(22, 23, 24, 0.35), 0px 10px 20px -15px rgba(22, 23, 24, 0.2)',
-});
-
-const StyledViewport = styled(SelectPrimitive.Viewport, {
-  padding: 5,
-});
-
-const StyledItem = styled(SelectPrimitive.Item, {
-  all: 'unset',
-  fontSize: 13,
-  lineHeight: 1,
-  color: '$amber11',
-  borderRadius: 3,
-  display: 'flex',
-  alignItems: 'center',
-  height: 25,
-  padding: '0 35px 0 25px',
-  position: 'relative',
-  userSelect: 'none',
-
-  '&[data-disabled]': {
-    color: mauve.mauve8,
-    pointerEvents: 'none',
-  },
-
-  '&[data-highlighted]': {
-    backgroundColor: '$amber9',
-    color: '$amber3',
-  },
-});
-
-const StyledLabel = styled(SelectPrimitive.Label, {
-  padding: '0 25px',
-  fontSize: 12,
-  lineHeight: '25px',
-  color: mauve.mauve11,
-});
-
-function Content({ children, ...props}: {children: React.ReactNode})  {
-  return (
-    <SelectPrimitive.Portal>
-      <StyledContent {...props}>{children}</StyledContent>
-    </SelectPrimitive.Portal>
-  );
-}
-
-const scrollButtonStyles = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  height: 25,
-  backgroundColor: 'white',
-  color: violet.violet11,
-  cursor: 'default',
-};
-const StyledItemIndicator = styled(SelectPrimitive.ItemIndicator, {
-  position: 'absolute',
-  left: 0,
-  width: 25,
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-});
-
-const StyledScrollUpButton = styled(SelectPrimitive.ScrollUpButton, scrollButtonStyles);
-
-const StyledScrollDownButton = styled(SelectPrimitive.ScrollDownButton, scrollButtonStyles);
-
-const Select = SelectPrimitive.Root;
-const SelectTrigger = StyledTrigger;
-const SelectValue = SelectPrimitive.Value;
-const SelectIcon = StyledIcon;
-const SelectContent = Content;
-const SelectViewport = StyledViewport;
-const SelectGroup = SelectPrimitive.Group;
-const SelectItem = StyledItem;
-const SelectItemText = SelectPrimitive.ItemText;
-const SelectItemIndicator = StyledItemIndicator;
-const SelectLabel = StyledLabel;
-const SelectScrollUpButton = StyledScrollUpButton;
-const SelectScrollDownButton = StyledScrollDownButton;
-
-const SelectDemo = ({data, handler, value, placeholder}: {
-  data: any,
-  handler: any,
-  value: any,
-  placeholder: any
-}) => (
-  <Box>
-      <Select onValueChange={handler} value={value}>
-      <SelectTrigger aria-label={placeholder}>
-          <SelectValue placeholder={placeholder} />
-          <SelectIcon>
-            <ChevronDownIcon />
-          </SelectIcon>
-      </SelectTrigger>
-      <SelectContent>
-          <SelectScrollUpButton>
-            <ChevronUpIcon />
-          </SelectScrollUpButton>
-          <SelectViewport>
-          <SelectGroup>
-              <SelectItem value="">
-                  <SelectItemText>{placeholder}</SelectItemText>
-                  <SelectItemIndicator>
-                      <CheckIcon />
-                  </SelectItemIndicator>
-              </SelectItem>                
-              {data.map((lang: string) => {
-                  return (
-                  <SelectItem key={lang} value={lang}>
-                      <SelectItemText>{lang}</SelectItemText>
-                      <SelectItemIndicator>
-                          <CheckIcon />
-                      </SelectItemIndicator>
-                  </SelectItem>
-                  )
-              })}
-          </SelectGroup>
-          </SelectViewport>
-          <SelectScrollDownButton>
-          <ChevronDownIcon />
-          </SelectScrollDownButton>
-      </SelectContent>
-      </Select>
-  </Box>
-);
 
 type HomeProps = {
   games: Game[],
@@ -363,6 +132,14 @@ export const getStaticProps: GetStaticProps<HomeProps> = async (context) => {
   }
 }
 
+const renderSubComponent = ({ row }: { row: Row<Game> }) => {
+  return (
+    <pre style={{ fontSize: '10px' }}>
+      <code>{JSON.stringify(row.original, null, 2)}</code>
+    </pre>
+  )
+}
+
 const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStaticProps>) => {
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -371,6 +148,25 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
 
   const defaultColumns = useMemo<ColumnDef<Game>[]>(
       () => [
+          {
+            id: 'expander',
+            header: () => null,
+            cell: ({ row }) => {
+              return row.getCanExpand() ? (
+                <button
+                  {...{
+                    onClick: row.getToggleExpandedHandler(),
+                    style: { cursor: 'pointer', border: 'none', background: 'none', fontSize: 24 },
+                  }}
+                >
+                  {row.getIsExpanded() ? '👇' : '👉'}
+                </button>
+              ) : (
+                '🔵'
+              )
+            },
+            size: 10
+          },
           {
               accessorKey: 'Name',
               header: 'Name'
@@ -400,7 +196,7 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                           ))}
                       </Flex>
               },
-              size: 200,
+              size: 100,
               header: 'Made with',
               enableColumnFilter: true,
               filterFn: (row, columnId, value: string) => {
@@ -443,7 +239,7 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                   const grade = row.Magic["grade-01-result"]
                   return grade
               },
-              header: 'Overall grade',
+              header: 'Grade',
               cell: (data) => {
                   return <>{ data.getValue()}th</>
               },
@@ -480,10 +276,12 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
       state: {
           columnFilters,
       },
+      getRowCanExpand: () => true,
       onColumnFiltersChange: setColumnFilters,
       getCoreRowModel: getCoreRowModel(),
       getSortedRowModel: getSortedRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
+      getExpandedRowModel: getExpandedRowModel(),
       debugTable: true,
   })
 
@@ -530,8 +328,8 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
         </Head>
         <Box css={{ maxWidth: 1024, margin: '0 15px'}}>
             <Box css={{ width: '100%', maxWidth: 300, margin: '0 0 80px' }}>
-                <Text css={{fontSize: 72, fontWeight: 900, color: amber.amber11 }}>Panacea</Text>
-                <Text css={{color: sand.sand10 }}>A list of Ludum Dare entries that are open-source and their links.</Text>
+                <Text css={{fontSize: 72, fontWeight: 900 }}>Panacea</Text>
+                <Text variant="sand">A list of Ludum Dare entries that are open-source and their links.</Text>
             </Box>
             <Box css={{margin: '15px 0'}}>
                 <Flex css={{alignItems: 'center', justifyContent: 'end'}}>
@@ -548,7 +346,10 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                     </Box>
                 </Flex>
             </Box>
-            <Box css={{overflow: 'auto', height: 300}} ref={tableContainerRef}>
+            <Box css={{fontSize: 12, margin: "15px 0", fontWeight: 700, textAlign: 'right'}}>
+                Showing {table.getRowModel().rows.length} games
+            </Box>
+            <Box css={{overflow: 'auto', height: 500}} ref={tableContainerRef}>
                 <Table style={{borderSpacing: 0}}>
                     <thead style={{position: 'sticky', top: 0}}>
                         {table.getHeaderGroups().map(headerGroup => (
@@ -593,20 +394,30 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                     )}                  
                     {virtualRows.map(virtualRow => {
                         const row = rows[virtualRow.index] as Row<Game>
-                        return (
-                            <TableRow key={row.id}>
-                            {row.getVisibleCells().map(cell => {
-                                return (
-                                <TableCell key={cell.id}>
-                                    {flexRender(
-                                    cell.column.columnDef.cell,
-                                    cell.getContext()
-                                    )}
-                                </TableCell>
-                                )
-                            })}
-                            </TableRow>
-                        )
+                          return (
+                              <>
+                                <TableRow key={row.id}>
+                                  {row.getVisibleCells().map(cell => {
+                                      return (
+                                      <TableCell key={cell.id}>
+                                          {flexRender(
+                                          cell.column.columnDef.cell,
+                                          cell.getContext()
+                                          )}
+                                      </TableCell>
+                                      )
+                                  })}
+                                </TableRow>
+                                {row.getIsExpanded() && (
+                                  <TableRow>
+                                    {/* 2nd row is a custom 1 cell row */}
+                                    <TableCell colSpan={row.getVisibleCells().length}>
+                                      {renderSubComponent({ row })}
+                                    </TableCell>
+                                  </TableRow>
+                                )}
+                              </>
+                          )
                         })}
                         {paddingBottom > 0 && (
                         <tr>
@@ -615,9 +426,6 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                         )}                    
                     </tbody>
                 </Table>
-            </Box>
-            <Box css={{fontSize: 12, margin: "15px 0", fontWeight: 700}}>
-                Showing {table.getRowModel().rows.length} games
             </Box>
         </Box>
       </>
