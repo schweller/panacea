@@ -25,7 +25,7 @@ The website has an exhaustive list of Ludum Dare Compo entries, with their open-
 ## Contributing
 
 - Any contribution is welcomed :)
-- If you have any questions reach out via Issues or to me directly, via Twitter: https://twitter.com/inacho_
+- If you have any questions reach out via Issues or to me directly, via Twitter: [https://twitter.com/inacho_](https://twitter.com/inacho_)
 
 ## Credits
 
