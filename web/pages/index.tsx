@@ -15,12 +15,13 @@ import {
 import { useVirtual } from 'react-virtual'
 import { useMemo, useRef, useState } from "react"
 import * as SeparatorPrimitive from '@radix-ui/react-separator';
-import { Link2Icon, ChevronUpIcon, ChevronDownIcon } from "@radix-ui/react-icons"
+import { Link2Icon, GitHubLogoIcon, TwitterLogoIcon, HeartFilledIcon, ChevronUpIcon, ChevronDownIcon } from "@radix-ui/react-icons"
 
 import SelectDemo from "../components/select"
 import { Box, Flex, Text, StyledButton, Anchor, Heading, Paragraph } from "../components/common"
 import { loadGames, loadEvents, loadLanguages, Game, Event as EventType, Language } from "../lib/load-data"
 import { styled } from "../stitches.config"
+import { plum } from '@radix-ui/colors'
 
 const ldRootUrl = "https://ldjam.com"
 
@@ -140,11 +141,38 @@ export const getStaticProps: GetStaticProps<HomeProps> = async (context) => {
 }
 
 const renderSubComponent = ({ row }: { row: Row<Game> }) => {
-  return (
-    <pre style={{ fontSize: '10px' }}>
-      <code>{JSON.stringify(row.original, null, 2)}</code>
-    </pre>
-  )
+    const name = row.original.Name
+    const meta = row.original.Meta
+    const list = Object.keys(meta)
+        .filter((k) => {
+            if (meta[k] !== '') return true
+            return false
+        })
+        .map((k) => {
+        if (meta[k] !== '') {
+            return meta[k]
+        }
+    })
+    
+    return (
+        <>
+            <Box >
+                <Box css={{margin:'5px 0'}}>
+                    <Text>All links:</Text>
+                </Box>
+                <Flex css={{gap: 10, flexWrap: 'wrap'}}>
+                    {
+                        list.map((link, i) => {
+                            return (
+                                <PillLink key={`${link}-${i}`} href={link} target="_blank" css={{width: 'fit-content', padding: '0 15px'}}>{link} <Box css={{margin:'0 0 0 5px'}}><Link2Icon/></Box></PillLink>
+                            )
+                        })
+                    }
+                </Flex>
+            </Box>
+        </>
+
+    )
 }
 
 const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStaticProps>) => {
@@ -350,6 +378,28 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
           <title>Panacea - a feast!</title>
         </Head>
         <Box css={{ maxWidth: 1024, margin: '0 15px'}}>
+            <Box css={{margin: '20px 0'}}>
+                <Flex css={{alignItems: 'center', justifyContent: 'end'}}>
+                    <Anchor 
+                        variant='svg' 
+                        href='https://github.com/schweller/panacea' 
+                        target='_blank' 
+                        css={{margin: '0 15px 0 0'}}
+                        title='https://github.com/schweller/panacea'
+                    >
+                        <GitHubLogoIcon width='32' height='32' />
+                    </Anchor>
+                    <Anchor 
+                        variant='svg' 
+                        href='https://twitter.com/inacho_' 
+                        target='_blank' 
+                        css={{margin: '4px 0 0'}}
+                        title='https://twitter.com/inacho_'
+                    >
+                        <TwitterLogoIcon width={32} height={32} />
+                    </Anchor>
+                </Flex>
+            </Box>
             <Box css={{ width: '100%', maxWidth: 300, margin: '80px 0 0' }}>
                 <Text css={{fontSize: 72, fontWeight: 900 }}>Panacea</Text>
                 <Text variant="sand">A (awesome) list of <b>open-source</b> Ludum Dare entries.</Text>
@@ -448,7 +498,7 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                                 {row.getIsExpanded() && (
                                   <TableRow>
                                     {/* 2nd row is a custom 1 cell row */}
-                                    <TableCell colSpan={row.getVisibleCells().length}>
+                                    <TableCell css={{padding: '15px 15px 25px'}} colSpan={row.getVisibleCells().length}>
                                       {renderSubComponent({ row })}
                                     </TableCell>
                                   </TableRow>
@@ -463,19 +513,35 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                         )}                    
                     </tbody>
                 </Table>
-            </Box>          
-            <Box id='why' css={{margin: "80px 0 0"}}>
-                <Text css={{fontSize: 72, fontWeight: 900 }}>Why?</Text>
+            </Box>
+            <Box id='#limitations' css={{margin: "80px 0 0"}}>
+                <Text css={{fontSize: 72, fontWeight: 900 }}>Limitations</Text>
                 <Box>
                     <Text variant="sand">
                         <Paragraph>
-                                There are many challenges to learning, and in many fields, learning while practicing is an even greater challenge. Many indie developers and hobbyist programmers are missing the reference implementation of key concepts and ideas in game development. In my opinion, open-source code plays a significant role in a number of different ways, one of which is in the field of education.
+                            Currently, the scraper can only obtain metadata from Github hosted projects. The roadmap has a coming support for other providers, e.g. Gitlab, Bitbucket, Itch.io and custom executables. This is why some games have an empty &quot;Made with&quot; value. 
                         </Paragraph>
                     </Text>
 
                     <Text variant="sand">
                         <Paragraph>
-                                The idea behind Panacea was to provide a complete list of games that have open-source code and assets. Panacea leverages Ludum Dare public API to obtain a big dataset and with the help of other APIs, categorize the entries into programming languages and engines.
+                            The current Ludum Dare event won&apos;t show up. As soon as the event is over, the data for a new batch games will be added! 
+                        </Paragraph>
+                    </Text>
+                </Box>
+            </Box>                  
+            <Box id='why' css={{margin: "80px 0 0"}}>
+                <Text css={{fontSize: 72, fontWeight: 900 }}>Why?</Text>
+                <Box>
+                    <Text variant="sand">
+                        <Paragraph>
+                            There are many challenges to learning, and in many fields, learning while practicing is an even greater challenge. Many indie developers and hobbyist programmers are missing the reference implementation of key concepts and ideas in game development. In my opinion, open-source code plays a significant role in a number of different ways, one of which is in the field of education.
+                        </Paragraph>
+                    </Text>
+
+                    <Text variant="sand">
+                        <Paragraph>
+                            The idea behind Panacea was to provide a complete list of games that have open-source code and assets. Panacea leverages Ludum Dare public API to obtain a big dataset and with the help of other APIs, categorize the entries into programming languages and engines.
                         </Paragraph>
                     </Text>
                 </Box>
@@ -522,8 +588,11 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                     </Text>
                 </Box>
             </Box>
-            <Box id='footer'>
-            
+            <Box id='footer' css={{margin: "60px 0 60px", textAlign: 'right'}}>
+                <StyledSeparator css={{ margin: '15px 0' }} />
+                <Text css={{display: 'inline-flex', alignItems: 'center', height: 20}}>
+                    Made with <Box css={{margin: "0 5px "}}><HeartFilledIcon /></Box> by <Anchor href="https://twitter.com/inacho_" target='_blank' variant='dotted' css={{margin: '0 5px 0'}}>Inacio Schweller</Anchor>
+                </Text>
             </Box>                    
         </Box>
       </>

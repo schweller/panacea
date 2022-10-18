@@ -18,6 +18,7 @@ export const Text = styled('div', {
 });
 
 export const Anchor = styled('a', {
+    transition: 'color 0.5s ease',
     '&:hover': {
         textDecoration: 'underline'
     },
@@ -25,16 +26,24 @@ export const Anchor = styled('a', {
     variants: {
         variant: {
             dotted: {
+                color: '$plum9',
                 textDecorationStyle: 'dotted',
                 textDecorationColor: '$plum10',
                 textDecorationThickness: '0.125em',
                 textUnderlineOffset: '4.5px',
                 '&:hover': {
+                    color: '$plum12',
                     textDecorationStyle: 'dotted',
                     textDecorationColor: '$plum10',
                     textDecorationThickness: '0.125em',
                     textUnderlineOffset: '4.5px'                    
                 },                
+            },
+            svg: {
+                color: '$plum9',
+                '&:hover': {
+                    color: '$plum12',
+                },     
             }
         }
     },
