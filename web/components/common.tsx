@@ -4,7 +4,6 @@ export const Box = styled('div', {});
 export const Flex = styled('div', { display: 'flex' });
 export const Text = styled('div', {
     color: '$plum12',
-    fontSize: 15,
     
     variants: {
         variant: {
@@ -17,6 +16,32 @@ export const Text = styled('div', {
         color: '$plum12',
       },
 });
+
+export const Anchor = styled('a', {
+    '&:hover': {
+        textDecoration: 'underline'
+    },
+    
+    variants: {
+        variant: {
+            dotted: {
+                textDecorationStyle: 'dotted',
+                textDecorationColor: '$plum10',
+                textDecorationThickness: '0.125em',
+                textUnderlineOffset: '4.5px',
+                '&:hover': {
+                    textDecorationStyle: 'dotted',
+                    textDecorationColor: '$plum10',
+                    textDecorationThickness: '0.125em',
+                    textUnderlineOffset: '4.5px'                    
+                },                
+            }
+        }
+    },
+    defaultVariants: {
+        variant: 'dotted'
+    }
+})
 
 export const List = styled('ul', {
     listStyle: "none"

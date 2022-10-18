@@ -1,6 +1,5 @@
-import type { NextPage, GetStaticProps, InferGetStaticPropsType } from 'next'
+import type { GetStaticProps, InferGetStaticPropsType } from 'next'
 import Head from 'next/head'
-import { violet, mauve, sand, amber, amberDark, sandDark, plum, plumDark, mauveDark } from "@radix-ui/colors"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -15,13 +14,21 @@ import {
 } from '@tanstack/react-table'
 import { useVirtual } from 'react-virtual'
 import { useMemo, useRef, useState } from "react"
+import * as SeparatorPrimitive from '@radix-ui/react-separator';
+import { Link2Icon, ChevronUpIcon, ChevronDownIcon } from "@radix-ui/react-icons"
 
 import SelectDemo from "../components/select"
-import { Box, Flex, Text, StyledButton } from "../components/common"
+import { Box, Flex, Text, StyledButton, Anchor, Heading } from "../components/common"
 import { loadGames, loadEvents, loadLanguages, Game, Event as EventType, Language } from "../lib/load-data"
 import { styled } from "../stitches.config"
 
 const ldRootUrl = "https://ldjam.com"
+
+const StyledSeparator = styled(SeparatorPrimitive.Root, {
+  backgroundColor: '$plum10',
+  '&[data-orientation=horizontal]': { height: 1, width: '100%' },
+  '&[data-orientation=vertical]': { height: '100%', width: 1 },
+});
 
 const PillLink = styled('a', {
     display: 'flex',
@@ -152,7 +159,7 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
             id: 'expander',
             header: () => null,
             cell: ({ row }) => {
-              return row.getCanExpand() ? (
+             return row.getCanExpand() ? (
                 <button
                   {...{
                     onClick: row.getToggleExpandedHandler(),
@@ -168,8 +175,23 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
             size: 10
           },
           {
-              accessorKey: 'Name',
-              header: 'Name'
+            accessorKey: 'Name',
+            header: 'Name',
+            cell: (data) => {
+                const link = data.row.getValue('Link') as string
+                return (
+                  <>
+                    <Anchor href={link} target="_blank" title={link} variant="dotted">
+                      <Flex css={{alignItems: 'center'}}>
+                        <Box css={{overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '80%', marginRight: 10}}>
+                          {data.getValue()}
+                        </Box> 
+                        <Link2Icon/>
+                      </Flex>
+                    </Anchor>
+                  </>
+                )
+            }
           },
           {
               accessorFn: (row, i) => {
@@ -179,7 +201,7 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                   return <PillLink target="_blank" href={data.getValue() as string}>Game Link</PillLink>
               },
               header: 'Link',
-              size: 80
+              size: 80,
           },
           {
               accessorFn: (row, i) => {
@@ -275,6 +297,9 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
       enableColumnFilters: true,
       state: {
           columnFilters,
+          columnVisibility: {
+            "Link": false
+          }
       },
       getRowCanExpand: () => true,
       onColumnFiltersChange: setColumnFilters,
@@ -327,9 +352,19 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <Box css={{ maxWidth: 1024, margin: '0 15px'}}>
-            <Box css={{ width: '100%', maxWidth: 300, margin: '0 0 80px' }}>
+            <Box css={{ width: '100%', maxWidth: 300, margin: '80px 0 0' }}>
                 <Text css={{fontSize: 72, fontWeight: 900 }}>Panacea</Text>
-                <Text variant="sand">A list of Ludum Dare entries that are open-source and their links.</Text>
+                <Text variant="sand">A (awesome) list of <b>open-source</b> Ludum Dare entries.</Text>
+                <StyledSeparator css={{ margin: '15px 0' }} />
+                <Flex css={{height: 20, alignItems: 'center'}}>
+                  <Box>
+                    <Anchor href='#why' variant="dotted"> Why? </Anchor>
+                  </Box>
+                  <StyledSeparator decorative orientation="vertical" css={{ margin: '0 15px' }} />
+                  <Box>
+                    <Anchor href='#credits'>Credits</Anchor>
+                  </Box>
+                </Flex>
             </Box>
             <Box css={{margin: '15px 0'}}>
                 <Flex css={{alignItems: 'center', justifyContent: 'end'}}>
@@ -357,9 +392,9 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                             {headerGroup.headers.map(header => {
                             return (
                                 <TableHeading
-                                key={header.id}
-                                colSpan={header.colSpan}
-                                style={{ width: header.getSize() }}
+                                  key={header.id}
+                                  colSpan={header.colSpan}
+                                  style={{ width: header.getSize() }}
                                 >
                                 {header.isPlaceholder ? null : (
                                     <div
@@ -427,6 +462,28 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                     </tbody>
                 </Table>
             </Box>
+
+            <Box id='why' css={{margin: "80px 0 0"}}>
+                <Text css={{fontSize: 72, fontWeight: 900 }}>Why?</Text>
+                <Box>
+                    <p>
+                        <Text variant="sand">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pretium ullamcorper quam, ut sagittis ex dapibus interdum. Phasellus mi mauris, commodo eu aliquet at, congue mollis justo. Maecenas tincidunt aliquet porttitor. Cras suscipit risus suscipit augue euismod, eget cursus sem hendrerit. Proin consequat orci ac dui ultrices mollis. Nam nec felis vitae nulla tincidunt ultrices. Aenean venenatis pellentesque magna, ac condimentum ipsum pharetra vel. Aliquam vel nisl lacinia, varius elit sed, finibus sapien. Aenean auctor, tellus eu aliquam eleifend, ante elit tincidunt arcu, eu vehicula neque nibh vel nisi. Nullam tincidunt, elit vitae fermentum lacinia, eros mi volutpat nunc, eget laoreet quam augue ut purus. Mauris porttitor feugiat lacus eget semper. Sed vel ligula nec felis pulvinar laoreet. Nullam at maximus nisl. Etiam vestibulum convallis risus.
+                        </Text>
+                    </p>
+                </Box>
+            </Box>
+
+            <Box id='credits' css={{margin: "80px 0 0"}}>
+                <Text css={{fontSize: 72, fontWeight: 900 }}>Credits</Text>
+                <Box>
+                    <p>
+                        <Text variant="sand">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pretium ullamcorper quam, ut sagittis ex dapibus interdum. Phasellus mi mauris, commodo eu aliquet at, congue mollis justo. Maecenas tincidunt aliquet porttitor. Cras suscipit risus suscipit augue euismod, eget cursus sem hendrerit. Proin consequat orci ac dui ultrices mollis. Nam nec felis vitae nulla tincidunt ultrices. Aenean venenatis pellentesque magna, ac condimentum ipsum pharetra vel. Aliquam vel nisl lacinia, varius elit sed, finibus sapien. Aenean auctor, tellus eu aliquam eleifend, ante elit tincidunt arcu, eu vehicula neque nibh vel nisi. Nullam tincidunt, elit vitae fermentum lacinia, eros mi volutpat nunc, eget laoreet quam augue ut purus. Mauris porttitor feugiat lacus eget semper. Sed vel ligula nec felis pulvinar laoreet. Nullam at maximus nisl. Etiam vestibulum convallis risus.
+                        </Text>
+                    </p>
+                </Box>
+            </Box>            
         </Box>
       </>
   );
