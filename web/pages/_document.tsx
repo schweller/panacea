@@ -7,6 +7,9 @@ class MyDocument extends Document {
       <Html>
         <Head>
           <meta charSet="UTF-8" />
+          <title>Panacea - a feast!</title>
+          <meta name="description" content="Panacea is a listing of all open source games published at Ludum Dare" />
+          <link rel="icon" href="/favicon.ico" />
           <style
             id="stitches"
             dangerouslySetInnerHTML={{ __html: getCssText() }}

@@ -18,7 +18,7 @@ import * as SeparatorPrimitive from '@radix-ui/react-separator';
 import { Link2Icon, ChevronUpIcon, ChevronDownIcon } from "@radix-ui/react-icons"
 
 import SelectDemo from "../components/select"
-import { Box, Flex, Text, StyledButton, Anchor, Heading } from "../components/common"
+import { Box, Flex, Text, StyledButton, Anchor, Heading, Paragraph } from "../components/common"
 import { loadGames, loadEvents, loadLanguages, Game, Event as EventType, Language } from "../lib/load-data"
 import { styled } from "../stitches.config"
 
@@ -346,11 +346,6 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
 
   return (
       <>
-        <Head>
-          <title>Panacea - a feast!</title>
-          <meta name="description" content="Panacea is a listing of all open source games published at Ludum Dare" />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
         <Box css={{ maxWidth: 1024, margin: '0 15px'}}>
             <Box css={{ width: '100%', maxWidth: 300, margin: '80px 0 0' }}>
                 <Text css={{fontSize: 72, fontWeight: 900 }}>Panacea</Text>
@@ -364,6 +359,10 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                   <Box>
                     <Anchor href='#credits'>Credits</Anchor>
                   </Box>
+                  <StyledSeparator decorative orientation="vertical" css={{ margin: '0 15px' }} />
+                  <Box>
+                    <Anchor href='#about'>About</Anchor>
+                  </Box>                  
                 </Flex>
             </Box>
             <Box css={{margin: '15px 0'}}>
@@ -461,29 +460,68 @@ const Home = ({games, events, languages}: InferGetStaticPropsType<typeof getStat
                         )}                    
                     </tbody>
                 </Table>
-            </Box>
-
+            </Box>          
             <Box id='why' css={{margin: "80px 0 0"}}>
                 <Text css={{fontSize: 72, fontWeight: 900 }}>Why?</Text>
                 <Box>
-                    <p>
-                        <Text variant="sand">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pretium ullamcorper quam, ut sagittis ex dapibus interdum. Phasellus mi mauris, commodo eu aliquet at, congue mollis justo. Maecenas tincidunt aliquet porttitor. Cras suscipit risus suscipit augue euismod, eget cursus sem hendrerit. Proin consequat orci ac dui ultrices mollis. Nam nec felis vitae nulla tincidunt ultrices. Aenean venenatis pellentesque magna, ac condimentum ipsum pharetra vel. Aliquam vel nisl lacinia, varius elit sed, finibus sapien. Aenean auctor, tellus eu aliquam eleifend, ante elit tincidunt arcu, eu vehicula neque nibh vel nisi. Nullam tincidunt, elit vitae fermentum lacinia, eros mi volutpat nunc, eget laoreet quam augue ut purus. Mauris porttitor feugiat lacus eget semper. Sed vel ligula nec felis pulvinar laoreet. Nullam at maximus nisl. Etiam vestibulum convallis risus.
-                        </Text>
-                    </p>
+                    <Text variant="sand">
+                        <Paragraph>
+                                There are many challenges to learning, and in many fields, learning while practicing is an even greater challenge. Many indie developers and hobbyist programmers are missing the reference implementation of key concepts and ideas in game development. In my opinion, open-source code plays a significant role in a number of different ways, one of which is in the field of education.
+                        </Paragraph>
+                    </Text>
+
+                    <Text variant="sand">
+                        <Paragraph>
+                                The idea behind Panacea was to provide a complete list of games that have open-source code and assets. Panacea leverages Ludum Dare public API to obtain a big dataset and with the help of other APIs, categorize the entries into programming languages and engines.
+                        </Paragraph>
+                    </Text>
                 </Box>
             </Box>
 
             <Box id='credits' css={{margin: "80px 0 0"}}>
                 <Text css={{fontSize: 72, fontWeight: 900 }}>Credits</Text>
                 <Box>
-                    <p>
-                        <Text variant="sand">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pretium ullamcorper quam, ut sagittis ex dapibus interdum. Phasellus mi mauris, commodo eu aliquet at, congue mollis justo. Maecenas tincidunt aliquet porttitor. Cras suscipit risus suscipit augue euismod, eget cursus sem hendrerit. Proin consequat orci ac dui ultrices mollis. Nam nec felis vitae nulla tincidunt ultrices. Aenean venenatis pellentesque magna, ac condimentum ipsum pharetra vel. Aliquam vel nisl lacinia, varius elit sed, finibus sapien. Aenean auctor, tellus eu aliquam eleifend, ante elit tincidunt arcu, eu vehicula neque nibh vel nisi. Nullam tincidunt, elit vitae fermentum lacinia, eros mi volutpat nunc, eget laoreet quam augue ut purus. Mauris porttitor feugiat lacus eget semper. Sed vel ligula nec felis pulvinar laoreet. Nullam at maximus nisl. Etiam vestibulum convallis risus.
-                        </Text>
-                    </p>
+                    <Text variant="sand">
+                        <Paragraph>
+                                To the team maintaining <Anchor href='https://github.com/JammerCore/JammerCore' target='_blank'>Ludum Dare core repository</Anchor> and to <Anchor href="https://ldjam.com/">Ludum Dare</Anchor>, the event that got me into game design.
+                        </Paragraph>
+                    </Text>
+                    <Text variant="sand">
+                        <Paragraph>
+                                To <Anchor href='https://twitter.com/mikekasprzak' target='_blank'>Mike Kasprazak</Anchor>, Ludum Dare host and showrunner.
+                        </Paragraph>
+                    </Text>
+                    <Text variant="sand">
+                        <Paragraph>
+                                To yours truly, <Anchor href='https://twitter.com/inacho_' target='_blank'>Inácio Schweller</Anchor>, creator and maintainer of Panacea.
+                        </Paragraph>                                        
+                    </Text>
                 </Box>
-            </Box>            
+            </Box>
+
+            <Box id='about' css={{margin: "80px 0 0"}}>
+                <Text css={{fontSize: 72, fontWeight: 900 }}>About</Text>
+                <Box>
+                    <Text variant="sand">
+                        <Paragraph>
+                            Panacea is statictly generated React website, using <Anchor href='https://github.com/vercel/next.js/'>NextJS</Anchor> framework and hosted by <Anchor href='https://vercel.com/'>Vercel</Anchor>.
+                        </Paragraph>
+                    </Text>
+                    <Text variant="sand">
+                        <Paragraph>
+                                The data is statictly hosted and publicbly available at <Anchor href='https://github.com/schweller/panacea'>Panacea repository</Anchor>.
+                        </Paragraph>                    
+                    </Text>
+                    <Text variant="sand">
+                        <Paragraph>
+                                The code for this repository is open source and MIT licensed.
+                        </Paragraph>
+                    </Text>
+                </Box>
+            </Box>
+            <Box id='footer'>
+            
+            </Box>                    
         </Box>
       </>
   );

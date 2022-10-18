@@ -43,6 +43,11 @@ export const Anchor = styled('a', {
     }
 })
 
+export const Paragraph = styled('p', {
+    margin: '30px 0',
+    lineHeight: 2
+})
+
 export const List = styled('ul', {
     listStyle: "none"
 })
