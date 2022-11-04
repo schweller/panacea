@@ -128,13 +128,15 @@ func main() {
 	}
 	defer langFile.Close()
 
-	plan, _ := ioutil.ReadFile("data/languages.json")
+	langJson, _ := ioutil.ReadFile("data/languages.json")
 	var langData []Languages
-	json.Unmarshal(plan, &langData)
+	json.Unmarshal(langJson, &langData)
 
-	games := make([]Game, 0, 400)
+	gamesJson, _ := ioutil.ReadFile("data/games.json")
+	var gamesData []Game
+	json.Unmarshal(gamesJson, &gamesData)
+
 	events := make([]Event, 0, 400)
-	// allLanguages := make([]Languages, 0, 400)
 
 	c := colly.NewCollector()
 	// var d []struct{ Id int }
@@ -204,23 +206,34 @@ func main() {
 			f.Visit(eventsUrl)
 		}
 
-		if os.Getenv("DEBUG") == "true" {
-			intStr := strconv.FormatInt(int64(data.Feed[0].Id), 10)
+		// Only get the last event available as we don't need to traverse
+		// the whole event list again
+		if os.Getenv("SINGLE_EVENT") == "true" {
 			u := fmt.Sprintf(
 				"https://api.ldjam.com/vx/node/feed/%s/grade-01-result+reverse+parent/item/game/compo?limit=400",
-				intStr,
+				"296586",
 			)
 
 			d.Visit(u)
 		} else {
-			for _, obj := range data.Feed {
-				intStr := strconv.FormatInt(int64(obj.Id), 10)
+			if os.Getenv("DEBUG") == "true" {
+				intStr := strconv.FormatInt(int64(data.Feed[0].Id), 10)
 				u := fmt.Sprintf(
 					"https://api.ldjam.com/vx/node/feed/%s/grade-01-result+reverse+parent/item/game/compo?limit=400",
 					intStr,
 				)
 
 				d.Visit(u)
+			} else {
+				for _, obj := range data.Feed {
+					intStr := strconv.FormatInt(int64(obj.Id), 10)
+					u := fmt.Sprintf(
+						"https://api.ldjam.com/vx/node/feed/%s/grade-01-result+reverse+parent/item/game/compo?limit=400",
+						intStr,
+					)
+
+					d.Visit(u)
+				}
 			}
 		}
 
@@ -320,7 +333,7 @@ func main() {
 					}
 				}
 			}
-			games = append(games, game)
+			gamesData = append([]Game{game}, gamesData...)
 		}
 
 		return
@@ -336,7 +349,7 @@ func main() {
 	eventEnc.SetIndent("", "  ")
 	langEnc.SetIndent("", "  ")
 
-	enc.Encode(games)
+	enc.Encode(gamesData)
 	eventEnc.Encode(events)
 	langEnc.Encode(langData)
 }
@@ -381,18 +394,3 @@ func check_is_github(link string) bool {
 
 	return false
 }
-
-// Roadmap
-// Get main language (if github)
-
-// get events
-// https://api.ldjam.com/vx/node/feed/9/parent/event?limit=200
-// get nodes
-// https://api.ldjam.com/vx/node2/get/296279+276397+258323+233335+212256+176557+159347+139254+120415+97793+73256+49883+32802+11392+10291+9405+10
-// get games
-// https://api.ldjam.com/vx/node/feed/296586/smart+parent/item/game/compo?limit=24
-// get nodes
-// https://api.ldjam.com/vx/node2/get/303752+297795+305921+303223+303965+304101+300977+304716+305905+296745+305557+298693+299960+298748+299211+305972+305861+299853
-// get node meta
-// get link tag with 42332 (source code)
-//
